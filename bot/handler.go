@@ -168,7 +168,7 @@ func Handle() {
 				return c.Send(fmt.Sprintf("Ошибка при отправке на API: %v", err))
 			}
 			// Увеличиваем счётчик и обновляем время
-			metrics.IncrementFileProcessed("document_image")
+			metrics.IncrementFileProcessed("document_video")
 			metrics.UpdateLastProcessedTime()
 			return nil
 		}
