@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Generate image name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKER_HUB_LOGIN }}/noip:$(date +%s)" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=${{ secrets.DOCKER_HUB_LOGIN }}/immich-telegramm-uploader-bot:$(date +%s)" >> $GITHUB_ENV
 
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
