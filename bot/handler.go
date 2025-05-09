@@ -6,6 +6,7 @@ import (
 	"immich-telegramm-uploader-bot/uploader/immich"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,6 +27,17 @@ func Handle() {
 	if immichServer == "" {
 		log.Fatal("Не задан IMMICH_SERVER")
 	}
+	allowedChatIDs := os.Getenv("ALLOWED_CHAT_IDS")
+	var allowedChats []int64
+
+	if allowedChatIDs != "" {
+		ids := strings.Split(strings.ReplaceAll(allowedChatIDs, " ", ""), ",")
+		for _, idStr := range ids {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+				allowedChats = append(allowedChats, id)
+			}
+		}
+	}
 
 	settings := tele.Settings{
 		Token:  botToken,
@@ -41,6 +53,10 @@ func Handle() {
 
 	// --- 1. Обработка фото ---
 	bot.Handle(tele.OnPhoto, func(c tele.Context) error {
+		if !isAllowedChat(c.Chat().ID, allowedChats) {
+			log.Printf("Чат %d не разрешён", c.Chat().ID)
+			return nil // Игнорируем
+		}
 		photo := c.Message().Photo
 		if photo == nil {
 			return c.Send("Нет фото.")
@@ -71,6 +87,10 @@ func Handle() {
 
 	// --- 2. Обработка видео ---
 	bot.Handle(tele.OnVideo, func(c tele.Context) error {
+		if !isAllowedChat(c.Chat().ID, allowedChats) {
+			log.Printf("Чат %d не разрешён", c.Chat().ID)
+			return nil // Игнорируем
+		}
 		video := c.Message().Video
 		if video == nil {
 			return c.Send("Нет видео.")
@@ -100,6 +120,10 @@ func Handle() {
 
 	// --- 3. Обработка документов (фото, видео, другие файлы) ---
 	bot.Handle(tele.OnDocument, func(c tele.Context) error {
+		if !isAllowedChat(c.Chat().ID, allowedChats) {
+			log.Printf("Чат %d не разрешён", c.Chat().ID)
+			return nil // Игнорируем
+		}
 		doc := c.Message().Document
 		if doc == nil {
 			return c.Send("Нет документа.")
@@ -179,4 +203,13 @@ func Handle() {
 
 	log.Println("Бот запущен...")
 	bot.Start()
+}
+
+func isAllowedChat(chatID int64, allowedChats []int64) bool {
+	for _, id := range allowedChats {
+		if id == chatID {
+			return true
+		}
+	}
+	return false
 }
