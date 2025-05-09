@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"immich-telegramm-uploader-bot/metrics"
 	"immich-telegramm-uploader-bot/uploader/immich"
 	"log"
 	"os"
@@ -62,6 +63,9 @@ func Handle() {
 			return c.Send(fmt.Sprintf("Ошибка при отправке на API: %v", err))
 		}
 
+		// Увеличиваем счётчик и обновляем время
+		metrics.IncrementFileProcessed("photo")
+		metrics.UpdateLastProcessedTime()
 		return nil
 	})
 
@@ -88,7 +92,9 @@ func Handle() {
 		if err != nil {
 			return c.Send(fmt.Sprintf("Ошибка при отправке на API: %v", err))
 		}
-
+		// Увеличиваем счётчик и обновляем время
+		metrics.IncrementFileProcessed("video")
+		metrics.UpdateLastProcessedTime()
 		return nil
 	})
 
@@ -128,7 +134,9 @@ func Handle() {
 			if err != nil {
 				return c.Send(fmt.Sprintf("Ошибка при отправке на API: %v", err))
 			}
-
+			// Увеличиваем счётчик и обновляем время
+			metrics.IncrementFileProcessed("document_image")
+			metrics.UpdateLastProcessedTime()
 			return nil
 		}
 
@@ -159,7 +167,9 @@ func Handle() {
 			if err != nil {
 				return c.Send(fmt.Sprintf("Ошибка при отправке на API: %v", err))
 			}
-
+			// Увеличиваем счётчик и обновляем время
+			metrics.IncrementFileProcessed("document_image")
+			metrics.UpdateLastProcessedTime()
 			return nil
 		}
 
